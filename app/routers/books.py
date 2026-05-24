@@ -5,11 +5,16 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.auth.dependencies import get_current_user
 from app.database import get_db
 from app.models import Book
 from app.schemas import BookCreate, BookResponse, BookUpdate
 
-router = APIRouter(prefix="/books", tags=["books"])
+router = APIRouter(
+    prefix="/books",
+    tags=["books"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.get("/", response_model=list[BookResponse])

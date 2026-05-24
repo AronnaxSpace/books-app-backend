@@ -16,8 +16,17 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from app.config import Settings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 from app.models import Base
+
+
+class _AlembicSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
+    database_url: str
+
 
 target_metadata = Base.metadata
 
@@ -39,7 +48,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = Settings().database_url
+    url = _AlembicSettings().database_url
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -65,7 +74,7 @@ async def run_async_migrations() -> None:
     """
 
     connectable = async_engine_from_config(
-        {"sqlalchemy.url": Settings().database_url},
+        {"sqlalchemy.url": _AlembicSettings().database_url},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
